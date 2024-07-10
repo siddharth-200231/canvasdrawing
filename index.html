@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Document</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      font-family: Verdana, Geneva, Tahoma, sans-serif;
+    }
+
+    canvas {
+      border: 1px solid;
+      margin: auto;
+    }
+
+    .top {
+      display: flex;
+      justify-content: space-evenly;
+    }
+
+    .mid {
+      width: 100vw;
+      display: flex;
+      height: 500px;
+    }
+
+    .bottom {
+      display: flex;
+      justify-content: space-evenly;
+    }
+
+    .ctl {
+      width: 100px;
+      padding: 0px 10px;
+    }
+
+    #clr-btn {
+      background-color: rgb(247, 19, 19);
+      color: white;
+      border-radius: 5px;
+    }
+
+    #save-btn {
+      background-color: green;
+      color: white;
+      border-radius: 5px;
+    }
+
+    #clr-btn:hover,
+    #save-btn:hover {
+      box-shadow: rgba(0, 0, 0, 0.25) 0px 54px 55px, rgba(0, 0, 0, 0.12) 0px -12px 30px, rgba(0, 0, 0, 0.12) 0px 4px 6px, rgba(0, 0, 0, 0.17) 0px 12px 13px, rgba(0, 0, 0, 0.09) 0px -3px 5px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="">
+    <div class="top">
+      <div class="black">
+        <p>Text color Picker</p>
+        <input type="color" class="ctl" id="color-picker" />
+      </div>
+      <div class="back">
+        <p>Background Color</p>
+        <input type="color" name="" id="" class="ctl" />
+      </div>
+      <div class="f-size">
+        <p>Font size</p>
+        <select name="f-size" id="sizes" class="ctl">
+          <option value="2">2px</option>
+          <option value="4">4px</option>
+          <option value="5">5px</option>
+          <option value="8">8px</option>
+        </select>
+      </div>
+    </div>
+    <div class="mid">
+      <canvas height="400" width="900" id="canva"></canvas>
+    </div>
+    <div class="bottom">
+      <button class="ctl" id="clr-btn">Clear</button>
+      <button class="ctl" id="save-btn">Save & download</button>
+    </div>
+  </div>
+  <script>
+    window.onload = function () {
+      let history = [];
+
+      const colorPicker = document.getElementById('color-picker');
+      const canvasColor = document.querySelector('.back input');
+      const canvas = document.getElementById('canva');
+      const clearButton = document.getElementById('clr-btn');
+      const saveButton = document.getElementById('save-btn');
+      const fontSizePicker = document.getElementById('sizes');
+
+      const ctx = canvas.getContext('2d');
+
+      let isDrawing = false;
+      let lastX = 0;
+      let lastY = 0;
+
+      colorPicker.addEventListener('change', (event) => {
+        ctx.fillStyle = event.target.value;
+        ctx.strokeStyle = event.target.value;
+        console.log(`Color changed to ${event.target.value}`);
+      });
+
+      canvasColor.addEventListener('change', (event) => {
+        ctx.fillStyle = event.target.value;
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        console.log(`Canvas color changed to ${event.target.value}`);
+      });
+
+      canvas.addEventListener('mousedown', (event) => {
+        isDrawing = true;
+        lastX = event.offsetX;
+        lastY = event.offsetY;
+        console.log('Started drawing');
+      });
+
+      canvas.addEventListener('mousemove', (event) => {
+        if (isDrawing) {
+          ctx.beginPath();
+          ctx.moveTo(lastX, lastY);
+          ctx.lineTo(event.offsetX, event.offsetY);
+          ctx.stroke();
+
+          lastX = event.offsetX;
+          lastY = event.offsetY;
+          console.log(`Drawing at (${event.offsetX}, ${event.offsetY})`);
+        }
+      });
+
+      canvas.addEventListener('mouseup', () => {
+        isDrawing = false;
+        console.log('Stopped drawing');
+      });
+
+      canvas.addEventListener('contextmenu', (event) => {
+        event.preventDefault();
+      });
+
+      fontSizePicker.addEventListener('change', (event) => {
+        ctx.lineWidth = event.target.value;
+        console.log(`Font size changed to ${event.target.value}`);
+      });
+
+      clearButton.addEventListener('click', () => {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        console.log('Canvas cleared');
+      });
+
+      saveButton.addEventListener('click', () => {
+        localStorage.setItem('canvasContents', canvas.toDataURL());
+        let link = document.createElement('a');
+        link.download = 'my-canvas.png';
+        link.href = canvas.toDataURL();
+        link.click();
+        console.log('Canvas saved');
+      });
+    };
+  </script>
+</body>
+
+</html>
